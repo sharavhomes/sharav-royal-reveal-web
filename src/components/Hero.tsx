@@ -17,9 +17,9 @@ const Hero = () => {
         <img 
           src={heroImage} 
           alt="Luxury Interior" 
-          className="w-full h-full object-cover"
+          className="w-full h-full object-cover opacity-40"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-accent/40 via-accent/60 to-background/95" />
+        <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-background/80 to-background" />
         
         {/* Animated Decorative Elements */}
         <motion.div
@@ -84,12 +84,12 @@ const Hero = () => {
             transition={{ delay: 0.6, duration: 0.8 }}
             className="space-y-4"
           >
-            <p className="font-serif text-2xl md:text-4xl text-card tracking-wide">
+            <p className="font-serif text-2xl md:text-4xl text-foreground tracking-wide">
               Interior Design Studio
             </p>
             <div className="flex items-center justify-center gap-4">
               <div className="h-px w-16 bg-primary/50" />
-              <p className="text-lg md:text-xl text-card/90 font-light max-w-2xl">
+              <p className="text-lg md:text-xl text-muted-foreground font-light max-w-2xl">
                 Crafting Royal & Luxurious Spaces
               </p>
               <div className="h-px w-16 bg-primary/50" />
@@ -101,7 +101,7 @@ const Hero = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.8, duration: 0.8 }}
-            className="text-base md:text-lg text-card/80 max-w-2xl mx-auto font-light leading-relaxed"
+            className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto font-light leading-relaxed"
           >
             Transforming your vision into timeless elegance. Where every detail 
             speaks of sophistication, comfort, and refined luxury.
@@ -129,7 +129,7 @@ const Hero = () => {
             </button>
             <button 
               onClick={() => document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" })}
-              className="px-10 py-4 bg-card/20 backdrop-blur-sm text-card border-2 border-card/50 font-serif text-lg rounded-sm hover:bg-card/30 transition-all duration-300 hover:-translate-y-1"
+              className="px-10 py-4 bg-transparent text-foreground border-2 border-primary font-serif text-lg rounded-sm hover:bg-primary hover:text-primary-foreground transition-all duration-300 hover:-translate-y-1"
             >
               Get in Touch
             </button>
@@ -157,7 +157,7 @@ const Hero = () => {
                 <p className="font-serif text-3xl md:text-4xl text-primary mb-2">
                   {stat.number}
                 </p>
-                <p className="text-sm text-card/70 uppercase tracking-wide">
+                <p className="text-sm text-muted-foreground uppercase tracking-wide">
                   {stat.label}
                 </p>
               </motion.div>
@@ -177,7 +177,7 @@ const Hero = () => {
           onClick={scrollToNext}
           animate={{ y: [0, 10, 0] }}
           transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-          className="flex flex-col items-center gap-2 text-card hover:text-primary transition-colors group"
+          className="flex flex-col items-center gap-2 text-muted-foreground hover:text-primary transition-colors group"
         >
           <span className="text-sm uppercase tracking-wider">Scroll</span>
           <ChevronDown size={28} className="group-hover:scale-110 transition-transform" />
