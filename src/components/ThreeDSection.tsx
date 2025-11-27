@@ -21,7 +21,7 @@ const services = [
 
 const ThreeDSection = () => {
   return (
-    <section className="py-20 md:py-32 bg-background relative overflow-hidden">
+    <section id="services" className="py-20 md:py-32 bg-background relative overflow-hidden">
       {/* Decorative Elements */}
       <motion.div
         animate={{ rotate: 360 }}
