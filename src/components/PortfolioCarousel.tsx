@@ -46,21 +46,24 @@ const PortfolioCarousel = () => {
 
   const slideVariants = {
     enter: (direction: number) => ({
-      x: direction > 0 ? 1000 : -1000,
+      x: direction > 0 ? 1200 : -1200,
       opacity: 0,
-      scale: 0.8,
+      scale: 0.7,
+      rotateY: direction > 0 ? 45 : -45,
     }),
     center: {
       zIndex: 1,
       x: 0,
       opacity: 1,
       scale: 1,
+      rotateY: 0,
     },
     exit: (direction: number) => ({
       zIndex: 0,
-      x: direction < 0 ? 1000 : -1000,
+      x: direction < 0 ? 1200 : -1200,
       opacity: 0,
-      scale: 0.8,
+      scale: 0.7,
+      rotateY: direction < 0 ? 45 : -45,
     }),
   };
 
@@ -109,9 +112,10 @@ const PortfolioCarousel = () => {
                 animate="center"
                 exit="exit"
                 transition={{
-                  x: { type: "spring", stiffness: 300, damping: 30 },
-                  opacity: { duration: 0.2 },
-                  scale: { duration: 0.2 },
+                  x: { type: "spring", stiffness: 200, damping: 25 },
+                  opacity: { duration: 0.4 },
+                  scale: { duration: 0.4 },
+                  rotateY: { type: "spring", stiffness: 200, damping: 25 },
                 }}
                 drag="x"
                 dragConstraints={{ left: 0, right: 0 }}
@@ -128,45 +132,72 @@ const PortfolioCarousel = () => {
                 className="absolute w-full h-full"
               >
                 <div className="relative w-full h-full group cursor-grab active:cursor-grabbing">
-                  <img
+                  <motion.img
                     src={portfolioItems[currentIndex].image}
                     alt={portfolioItems[currentIndex].title}
                     className="w-full h-full object-cover rounded-lg"
+                    initial={{ scale: 1 }}
+                    whileHover={{ scale: 1.05 }}
+                    transition={{ duration: 0.4 }}
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-accent/80 via-accent/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-lg" />
-                  <div className="absolute bottom-0 left-0 right-0 p-8 text-card translate-y-full group-hover:translate-y-0 transition-transform duration-300">
-                    <p className="text-sm font-medium mb-2 opacity-90">
+                  <motion.div 
+                    className="absolute inset-0 bg-gradient-to-t from-accent/80 via-accent/20 to-transparent rounded-lg"
+                    initial={{ opacity: 0 }}
+                    whileHover={{ opacity: 1 }}
+                    transition={{ duration: 0.3 }}
+                  />
+                  <motion.div 
+                    className="absolute bottom-0 left-0 right-0 p-8 text-card"
+                    initial={{ y: "100%" }}
+                    whileHover={{ y: 0 }}
+                    transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                  >
+                    <motion.p 
+                      className="text-sm font-medium mb-2 opacity-90"
+                      initial={{ opacity: 0, y: 20 }}
+                      whileHover={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.1 }}
+                    >
                       {portfolioItems[currentIndex].category}
-                    </p>
-                    <h3 className="font-serif text-3xl md:text-4xl">
+                    </motion.p>
+                    <motion.h3 
+                      className="font-serif text-3xl md:text-4xl"
+                      initial={{ opacity: 0, y: 20 }}
+                      whileHover={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.15 }}
+                    >
                       {portfolioItems[currentIndex].title}
-                    </h3>
-                  </div>
+                    </motion.h3>
+                  </motion.div>
                 </div>
               </motion.div>
             </AnimatePresence>
           </div>
 
           {/* Navigation Buttons */}
-          <button
+          <motion.button
             onClick={() => paginate(-1)}
-            className="absolute left-4 top-1/2 -translate-y-1/2 z-10 p-3 bg-card/90 hover:bg-card rounded-full shadow-lg transition-all duration-300 hover:scale-110"
+            className="absolute left-4 top-1/2 -translate-y-1/2 z-10 p-3 bg-card/90 hover:bg-card rounded-full shadow-lg transition-all duration-300"
             aria-label="Previous"
+            whileHover={{ scale: 1.15, x: -5 }}
+            whileTap={{ scale: 0.95 }}
           >
             <ChevronLeft className="text-foreground" size={24} />
-          </button>
-          <button
+          </motion.button>
+          <motion.button
             onClick={() => paginate(1)}
-            className="absolute right-4 top-1/2 -translate-y-1/2 z-10 p-3 bg-card/90 hover:bg-card rounded-full shadow-lg transition-all duration-300 hover:scale-110"
+            className="absolute right-4 top-1/2 -translate-y-1/2 z-10 p-3 bg-card/90 hover:bg-card rounded-full shadow-lg transition-all duration-300"
             aria-label="Next"
+            whileHover={{ scale: 1.15, x: 5 }}
+            whileTap={{ scale: 0.95 }}
           >
             <ChevronRight className="text-foreground" size={24} />
-          </button>
+          </motion.button>
 
           {/* Indicators */}
           <div className="flex justify-center gap-2 mt-8">
             {portfolioItems.map((_, index) => (
-              <button
+              <motion.button
                 key={index}
                 onClick={() => {
                   setDirection(index > currentIndex ? 1 : -1);
@@ -178,6 +209,10 @@ const PortfolioCarousel = () => {
                     : "w-2 bg-muted hover:bg-primary/50"
                 }`}
                 aria-label={`Go to slide ${index + 1}`}
+                whileHover={{ scale: 1.2 }}
+                whileTap={{ scale: 0.9 }}
+                animate={index === currentIndex ? { scale: [1, 1.1, 1] } : {}}
+                transition={{ duration: 0.3 }}
               />
             ))}
           </div>
