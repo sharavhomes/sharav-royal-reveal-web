@@ -17,9 +17,9 @@ const Hero = () => {
         <img 
           src={heroImage} 
           alt="Luxury Interior" 
-          className="w-full h-full object-cover opacity-40"
+          className="w-full h-full object-cover opacity-60"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-background/80 to-background" />
+        <div className="absolute inset-0 bg-gradient-to-b from-background/40 via-background/50 to-background" />
         
         {/* Animated Decorative Elements */}
         <motion.div
@@ -65,7 +65,7 @@ const Hero = () => {
             transition={{ delay: 0.3, duration: 0.6 }}
             className="relative inline-block"
           >
-            <h1 className="font-serif text-7xl md:text-9xl lg:text-[12rem] text-primary tracking-wider relative">
+            <h1 className="font-serif text-7xl md:text-9xl lg:text-[12rem] text-primary tracking-wider relative drop-shadow-[0_4px_12px_rgba(0,0,0,0.4)]">
               Sharav
               {/* Decorative underline */}
               <motion.div
@@ -84,15 +84,15 @@ const Hero = () => {
             transition={{ delay: 0.6, duration: 0.8 }}
             className="space-y-4"
           >
-            <p className="font-serif text-2xl md:text-4xl text-foreground tracking-wide">
+            <p className="font-serif text-2xl md:text-4xl text-foreground tracking-wide drop-shadow-[0_2px_8px_rgba(0,0,0,0.3)]">
               Interior Design Studio
             </p>
             <div className="flex items-center justify-center gap-4">
-              <div className="h-px w-16 bg-primary/50" />
-              <p className="text-lg md:text-xl text-muted-foreground font-light max-w-2xl">
+              <div className="h-px w-16 bg-primary/50 drop-shadow-md" />
+              <p className="text-lg md:text-xl text-foreground font-light max-w-2xl drop-shadow-[0_2px_6px_rgba(0,0,0,0.3)]">
                 Crafting Royal & Luxurious Spaces
               </p>
-              <div className="h-px w-16 bg-primary/50" />
+              <div className="h-px w-16 bg-primary/50 drop-shadow-md" />
             </div>
           </motion.div>
 
@@ -101,7 +101,7 @@ const Hero = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.8, duration: 0.8 }}
-            className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto font-light leading-relaxed"
+            className="text-base md:text-lg text-foreground max-w-2xl mx-auto font-light leading-relaxed drop-shadow-[0_2px_6px_rgba(0,0,0,0.3)]"
           >
             Transforming your vision into timeless elegance. Where every detail 
             speaks of sophistication, comfort, and refined luxury.
