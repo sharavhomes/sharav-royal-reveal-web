@@ -1,6 +1,7 @@
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
-import PortfolioCarousel from "@/components/PortfolioCarousel";
+import Inspiration from "@/components/Inspiration";
+import Blueprints from "@/components/Blueprints";
 import ThreeDSection from "@/components/ThreeDSection";
 import Testimonials from "@/components/Testimonials";
 import Contact from "@/components/Contact";
@@ -11,7 +12,8 @@ const Index = () => {
       <Header />
       <main className="overflow-x-hidden">
         <Hero />
-        <PortfolioCarousel />
+        <Inspiration />
+        <Blueprints />
         <ThreeDSection />
         <Testimonials />
         <Contact />
