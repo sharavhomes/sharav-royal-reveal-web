@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, ChevronLeft, ChevronRight } from "lucide-react";
+import { X, ChevronLeft, ChevronRight, ZoomIn, ZoomOut, Maximize2 } from "lucide-react";
 import blueprint1 from "@/assets/blueprint-1.jpg";
 import blueprint2 from "@/assets/blueprint-2.jpg";
 import blueprint3 from "@/assets/blueprint-3.jpg";
@@ -28,6 +28,11 @@ const blueprints = [
 const Blueprints = () => {
   const [displayedItems, setDisplayedItems] = useState(blueprints.slice(0, 6));
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+  const [zoom, setZoom] = useState(1);
+  const [pan, setPan] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const imageRef = useRef<HTMLDivElement>(null);
 
   // Infinite scroll
   useEffect(() => {
@@ -49,6 +54,44 @@ const Blueprints = () => {
     if (selectedIndex === null) return;
     const newIndex = (selectedIndex + direction + blueprints.length) % blueprints.length;
     setSelectedIndex(newIndex);
+    resetView();
+  };
+
+  const resetView = () => {
+    setZoom(1);
+    setPan({ x: 0, y: 0 });
+  };
+
+  const handleZoomIn = () => {
+    setZoom((prev) => Math.min(prev + 0.5, 5));
+  };
+
+  const handleZoomOut = () => {
+    setZoom((prev) => Math.max(prev - 0.5, 0.5));
+  };
+
+  const handleWheel = (e: React.WheelEvent) => {
+    e.preventDefault();
+    const delta = e.deltaY * -0.001;
+    setZoom((prev) => Math.min(Math.max(prev + delta, 0.5), 5));
+  };
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (e.button !== 0) return;
+    setIsDragging(true);
+    setDragStart({ x: e.clientX - pan.x, y: e.clientY - pan.y });
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging) return;
+    setPan({
+      x: e.clientX - dragStart.x,
+      y: e.clientY - dragStart.y,
+    });
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
   };
 
   useEffect(() => {
@@ -56,11 +99,20 @@ const Blueprints = () => {
       if (selectedIndex === null) return;
       if (e.key === "ArrowLeft") navigateBlueprint(-1);
       if (e.key === "ArrowRight") navigateBlueprint(1);
-      if (e.key === "Escape") setSelectedIndex(null);
+      if (e.key === "Escape") {
+        setSelectedIndex(null);
+        resetView();
+      }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [selectedIndex]);
+
+  useEffect(() => {
+    if (selectedIndex !== null) {
+      resetView();
+    }
   }, [selectedIndex]);
 
   return (
@@ -127,15 +179,60 @@ const Blueprints = () => {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               className="fixed inset-0 bg-accent/98 backdrop-blur-md z-50 flex items-center justify-center p-4"
-              onClick={() => setSelectedIndex(null)}
+              onClick={() => {
+                setSelectedIndex(null);
+                resetView();
+              }}
             >
               {/* Close Button */}
               <button
-                onClick={() => setSelectedIndex(null)}
+                onClick={() => {
+                  setSelectedIndex(null);
+                  resetView();
+                }}
                 className="absolute top-6 right-6 text-accent-foreground hover:text-primary transition-colors z-10"
               >
                 <X size={32} />
               </button>
+
+              {/* Zoom Controls */}
+              <div className="absolute top-6 right-20 flex gap-2 z-10">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleZoomIn();
+                  }}
+                  className="p-3 bg-background/20 hover:bg-background/40 backdrop-blur-sm rounded-full transition-all duration-300 text-accent-foreground"
+                  title="Zoom In"
+                >
+                  <ZoomIn size={20} />
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleZoomOut();
+                  }}
+                  className="p-3 bg-background/20 hover:bg-background/40 backdrop-blur-sm rounded-full transition-all duration-300 text-accent-foreground"
+                  title="Zoom Out"
+                >
+                  <ZoomOut size={20} />
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    resetView();
+                  }}
+                  className="p-3 bg-background/20 hover:bg-background/40 backdrop-blur-sm rounded-full transition-all duration-300 text-accent-foreground"
+                  title="Reset View"
+                >
+                  <Maximize2 size={20} />
+                </button>
+              </div>
+
+              {/* Zoom Level Indicator */}
+              <div className="absolute top-6 left-1/2 -translate-x-1/2 text-accent-foreground/90 text-sm font-medium z-10 bg-background/20 backdrop-blur-sm px-4 py-2 rounded-full">
+                {Math.round(zoom * 100)}%
+              </div>
 
               {/* Navigation Controls */}
               <button
@@ -158,25 +255,42 @@ const Blueprints = () => {
               </button>
 
               {/* Blueprint Counter */}
-              <div className="absolute top-6 left-6 text-accent-foreground/90 text-sm font-medium z-10">
+              <div className="absolute top-20 left-6 text-accent-foreground/90 text-sm font-medium z-10">
                 {selectedIndex + 1} / {blueprints.length}
               </div>
 
-              {/* Main Blueprint */}
+              {/* Main Blueprint with Pan & Zoom */}
               <motion.div
                 key={selectedIndex}
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.9 }}
                 transition={{ type: "spring", stiffness: 200, damping: 25 }}
-                className="max-w-7xl w-full max-h-[85vh] relative"
+                className="max-w-7xl w-full max-h-[85vh] relative overflow-hidden"
                 onClick={(e) => e.stopPropagation()}
+                onWheel={handleWheel}
               >
-                <img
-                  src={blueprints[selectedIndex]}
-                  alt={`Blueprint ${selectedIndex + 1}`}
-                  className="w-full h-full object-contain rounded-lg shadow-2xl"
-                />
+                <div
+                  ref={imageRef}
+                  className={`w-full h-full flex items-center justify-center ${
+                    isDragging ? "cursor-grabbing" : "cursor-grab"
+                  }`}
+                  onMouseDown={handleMouseDown}
+                  onMouseMove={handleMouseMove}
+                  onMouseUp={handleMouseUp}
+                  onMouseLeave={handleMouseUp}
+                >
+                  <img
+                    src={blueprints[selectedIndex]}
+                    alt={`Blueprint ${selectedIndex + 1}`}
+                    className="max-w-full max-h-full object-contain rounded-lg shadow-2xl select-none"
+                    style={{
+                      transform: `scale(${zoom}) translate(${pan.x / zoom}px, ${pan.y / zoom}px)`,
+                      transition: isDragging ? "none" : "transform 0.1s ease-out",
+                    }}
+                    draggable={false}
+                  />
+                </div>
               </motion.div>
 
               {/* Thumbnail Navigation Strip */}
