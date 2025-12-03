@@ -76,15 +76,15 @@ const Testimonials = () => {
   };
 
   return (
-    <section id="testimonials" className="py-20 md:py-32 bg-background relative overflow-hidden">
-      {/* Decorative Elements */}
+    <section id="testimonials" className="py-16 md:py-32 bg-background relative overflow-hidden">
+      {/* Decorative Elements - Hidden on small mobile */}
       <motion.div
         animate={{ 
           rotate: [0, 360],
           scale: [1, 1.1, 1],
         }}
         transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
-        className="absolute top-10 right-10 w-64 h-64 border border-primary/10 rounded-full"
+        className="absolute top-10 right-10 w-32 md:w-64 h-32 md:h-64 border border-primary/10 rounded-full hidden sm:block"
       />
       <motion.div
         animate={{ 
@@ -92,7 +92,7 @@ const Testimonials = () => {
           scale: [1.1, 1, 1.1],
         }}
         transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-        className="absolute bottom-10 left-10 w-80 h-80 border border-primary/5 rounded-full"
+        className="absolute bottom-10 left-10 w-40 md:w-80 h-40 md:h-80 border border-primary/5 rounded-full hidden sm:block"
       />
 
       <div className="container mx-auto px-6 relative z-10">
@@ -225,21 +225,21 @@ const Testimonials = () => {
           {/* Navigation Buttons */}
           <motion.button
             onClick={() => paginate(-1)}
-            className="absolute left-0 md:-left-16 top-1/2 -translate-y-1/2 z-10 p-3 bg-card hover:bg-primary/10 rounded-full shadow-lg transition-all duration-300 border border-border"
+            className="absolute -left-2 md:-left-16 top-1/2 -translate-y-1/2 z-10 p-2 md:p-3 bg-card hover:bg-primary/10 rounded-full shadow-lg transition-all duration-300 border border-border"
             aria-label="Previous testimonial"
             whileHover={{ scale: 1.1, x: -5 }}
             whileTap={{ scale: 0.95 }}
           >
-            <ChevronLeft className="text-primary" size={24} />
+            <ChevronLeft className="text-primary w-5 h-5 md:w-6 md:h-6" />
           </motion.button>
           <motion.button
             onClick={() => paginate(1)}
-            className="absolute right-0 md:-right-16 top-1/2 -translate-y-1/2 z-10 p-3 bg-card hover:bg-primary/10 rounded-full shadow-lg transition-all duration-300 border border-border"
+            className="absolute -right-2 md:-right-16 top-1/2 -translate-y-1/2 z-10 p-2 md:p-3 bg-card hover:bg-primary/10 rounded-full shadow-lg transition-all duration-300 border border-border"
             aria-label="Next testimonial"
             whileHover={{ scale: 1.1, x: 5 }}
             whileTap={{ scale: 0.95 }}
           >
-            <ChevronRight className="text-primary" size={24} />
+            <ChevronRight className="text-primary w-5 h-5 md:w-6 md:h-6" />
           </motion.button>
 
           {/* Indicators */}

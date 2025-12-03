@@ -21,36 +21,36 @@ const services = [
 
 const ThreeDSection = () => {
   return (
-    <section id="services" className="py-20 md:py-32 bg-background relative overflow-hidden">
-      {/* Decorative Elements */}
+    <section id="services" className="py-16 md:py-32 bg-background relative overflow-hidden">
+      {/* Decorative Elements - Hidden on mobile */}
       <motion.div
         animate={{ rotate: 360 }}
         transition={{ duration: 50, repeat: Infinity, ease: "linear" }}
-        className="absolute -top-20 -right-20 w-96 h-96 border border-primary/10 rounded-full"
+        className="absolute -top-20 -right-20 w-48 md:w-96 h-48 md:h-96 border border-primary/10 rounded-full hidden sm:block"
       />
       <motion.div
         animate={{ rotate: -360 }}
         transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
-        className="absolute -bottom-20 -left-20 w-96 h-96 border border-primary/10 rounded-full"
+        className="absolute -bottom-20 -left-20 w-48 md:w-96 h-48 md:h-96 border border-primary/10 rounded-full hidden sm:block"
       />
 
-      <div className="container mx-auto px-6 relative z-10">
+      <div className="container mx-auto px-4 md:px-6 relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
-          className="text-center mb-16"
+          className="text-center mb-10 md:mb-16"
         >
-          <h2 className="font-serif text-4xl md:text-6xl text-foreground mb-4">
+          <h2 className="font-serif text-3xl md:text-6xl text-foreground mb-3 md:mb-4">
             3D Interior Design
           </h2>
-          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+          <p className="text-muted-foreground text-base md:text-lg max-w-2xl mx-auto px-2">
             Experience your future space in stunning detail with our advanced 3D design services
           </p>
         </motion.div>
 
-        <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8 max-w-6xl mx-auto">
           {services.map((service, index) => (
             <motion.div
               key={service.title}
@@ -59,7 +59,7 @@ const ThreeDSection = () => {
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: index * 0.2 }}
               whileHover={{ y: -10 }}
-              className="bg-card p-8 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300"
+              className="bg-card p-6 md:p-8 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300"
             >
               <motion.div
                 whileHover={{ rotate: 360 }}
