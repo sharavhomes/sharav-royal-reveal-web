@@ -76,25 +76,25 @@ const Inspiration = () => {
   };
 
   return (
-    <section id="inspiration" className="py-20 md:py-32 bg-background">
-      <div className="container mx-auto px-6">
+    <section id="inspiration" className="py-16 md:py-32 bg-background">
+      <div className="container mx-auto px-4 md:px-6">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
-          className="text-center mb-16"
+          className="text-center mb-10 md:mb-16"
         >
-          <h2 className="font-serif text-4xl md:text-6xl text-foreground mb-4">
+          <h2 className="font-serif text-3xl md:text-6xl text-foreground mb-3 md:mb-4">
             Design Inspiration
           </h2>
-          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+          <p className="text-muted-foreground text-base md:text-lg max-w-2xl mx-auto px-2">
             Explore a curated collection of stunning interior design ideas
           </p>
         </motion.div>
 
         {/* Pinterest-style Masonry Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 auto-rows-[200px]">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 md:gap-4 auto-rows-[120px] md:auto-rows-[200px]">
           {inspirationItems.map((item, index) => (
             <motion.div
               key={item.id}
@@ -111,18 +111,18 @@ const Inspiration = () => {
                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
               />
               <motion.div
-                className="absolute inset-0 bg-gradient-to-t from-accent/90 via-accent/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                className="absolute inset-0 bg-gradient-to-t from-accent/90 via-accent/40 to-transparent opacity-0 group-hover:opacity-100 md:transition-opacity md:duration-300"
               >
-                <div className="absolute bottom-0 left-0 right-0 p-4 text-accent-foreground">
-                  <p className="text-xs font-medium mb-1 opacity-90">
+                <div className="absolute bottom-0 left-0 right-0 p-2 md:p-4 text-accent-foreground">
+                  <p className="text-[10px] md:text-xs font-medium mb-0.5 md:mb-1 opacity-90">
                     {item.category}
                   </p>
-                  <h3 className="font-serif text-lg md:text-xl">
+                  <h3 className="font-serif text-sm md:text-xl">
                     {item.title}
                   </h3>
                 </div>
-                <div className="absolute top-4 right-4">
-                  <ZoomIn className="text-accent-foreground" size={24} />
+                <div className="absolute top-2 right-2 md:top-4 md:right-4">
+                  <ZoomIn className="text-accent-foreground w-4 h-4 md:w-6 md:h-6" />
                 </div>
               </motion.div>
             </motion.div>
@@ -135,20 +135,20 @@ const Inspiration = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-accent/95 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            className="fixed inset-0 bg-accent/95 backdrop-blur-sm z-50 flex items-center justify-center p-2 md:p-4"
             onClick={() => setSelectedImage(null)}
           >
             <button
               onClick={() => setSelectedImage(null)}
-              className="absolute top-6 right-6 text-accent-foreground hover:text-primary transition-colors"
+              className="absolute top-4 right-4 md:top-6 md:right-6 text-accent-foreground hover:text-primary transition-colors z-10"
             >
-              <X size={32} />
+              <X size={28} className="md:w-8 md:h-8" />
             </button>
             <motion.div
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ type: "spring", stiffness: 200, damping: 20 }}
-              className="max-w-6xl max-h-[90vh] relative"
+              className="max-w-6xl max-h-[85vh] md:max-h-[90vh] relative"
               onClick={(e) => e.stopPropagation()}
             >
               <img
@@ -156,11 +156,11 @@ const Inspiration = () => {
                 alt={inspirationItems.find((item) => item.id === selectedImage)?.title}
                 className="w-full h-full object-contain rounded-lg shadow-2xl"
               />
-              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-accent/90 to-transparent p-6 rounded-b-lg">
-                <p className="text-accent-foreground text-sm font-medium mb-2 opacity-90">
+              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-accent/90 to-transparent p-4 md:p-6 rounded-b-lg">
+                <p className="text-accent-foreground text-xs md:text-sm font-medium mb-1 md:mb-2 opacity-90">
                   {inspirationItems.find((item) => item.id === selectedImage)?.category}
                 </p>
-                <h3 className="text-accent-foreground font-serif text-2xl md:text-3xl">
+                <h3 className="text-accent-foreground font-serif text-xl md:text-3xl">
                   {inspirationItems.find((item) => item.id === selectedImage)?.title}
                 </h3>
               </div>

@@ -21,14 +21,14 @@ const Hero = () => {
         />
         <div className="absolute inset-0 bg-gradient-to-b from-background/40 via-background/50 to-background" />
         
-        {/* Animated Decorative Elements */}
+        {/* Animated Decorative Elements - Hidden on mobile */}
         <motion.div
           animate={{ 
             scale: [1, 1.2, 1],
             rotate: [0, 180, 360],
           }}
           transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-          className="absolute top-20 right-20 w-64 h-64 border border-primary/20 rounded-full"
+          className="absolute top-20 right-20 w-32 md:w-64 h-32 md:h-64 border border-primary/20 rounded-full hidden sm:block"
         />
         <motion.div
           animate={{ 
@@ -36,7 +36,7 @@ const Hero = () => {
             rotate: [360, 180, 0],
           }}
           transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
-          className="absolute bottom-20 left-20 w-96 h-96 border border-primary/10 rounded-full"
+          className="absolute bottom-20 left-20 w-48 md:w-96 h-48 md:h-96 border border-primary/10 rounded-full hidden sm:block"
         />
       </div>
 
@@ -65,7 +65,7 @@ const Hero = () => {
             transition={{ delay: 0.3, duration: 0.6 }}
             className="relative inline-block"
           >
-            <h1 className="font-serif text-7xl md:text-9xl lg:text-[12rem] text-primary tracking-wider relative drop-shadow-[0_4px_12px_rgba(0,0,0,0.4)]">
+            <h1 className="font-serif text-5xl sm:text-7xl md:text-9xl lg:text-[12rem] text-primary tracking-wider relative drop-shadow-[0_4px_12px_rgba(0,0,0,0.4)]">
               Sharav
               {/* Decorative underline */}
               <motion.div
@@ -140,12 +140,12 @@ const Hero = () => {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 1.2, duration: 0.8 }}
-            className="grid grid-cols-3 gap-8 max-w-3xl mx-auto pt-12"
+            className="grid grid-cols-3 gap-4 md:gap-8 max-w-3xl mx-auto pt-8 md:pt-12 px-2"
           >
             {[
-              { number: "150+", label: "Projects Completed" },
-              { number: "12+", label: "Years Experience" },
-              { number: "98%", label: "Client Satisfaction" },
+              { number: "150+", label: "Projects" },
+              { number: "12+", label: "Years" },
+              { number: "98%", label: "Satisfaction" },
             ].map((stat, index) => (
               <motion.div
                 key={stat.label}
@@ -154,10 +154,10 @@ const Hero = () => {
                 transition={{ delay: 1.4 + index * 0.1, duration: 0.5 }}
                 className="text-center"
               >
-                <p className="font-serif text-3xl md:text-4xl text-primary mb-2">
+                <p className="font-serif text-2xl sm:text-3xl md:text-4xl text-primary mb-1 md:mb-2">
                   {stat.number}
                 </p>
-                <p className="text-sm text-muted-foreground uppercase tracking-wide">
+                <p className="text-xs md:text-sm text-muted-foreground uppercase tracking-wide">
                   {stat.label}
                 </p>
               </motion.div>

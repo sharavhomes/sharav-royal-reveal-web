@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, ChevronLeft, ChevronRight, ZoomIn, ZoomOut, Maximize2 } from "lucide-react";
 import blueprint1 from "@/assets/blueprint-1.jpg";
@@ -32,6 +32,7 @@ const Blueprints = () => {
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const [lastTouchDistance, setLastTouchDistance] = useState<number | null>(null);
   const imageRef = useRef<HTMLDivElement>(null);
 
   // Infinite scroll
@@ -50,12 +51,12 @@ const Blueprints = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, [displayedItems]);
 
-  const navigateBlueprint = (direction: number) => {
+  const navigateBlueprint = useCallback((direction: number) => {
     if (selectedIndex === null) return;
     const newIndex = (selectedIndex + direction + blueprints.length) % blueprints.length;
     setSelectedIndex(newIndex);
     resetView();
-  };
+  }, [selectedIndex]);
 
   const resetView = () => {
     setZoom(1);
@@ -76,6 +77,7 @@ const Blueprints = () => {
     setZoom((prev) => Math.min(Math.max(prev + delta, 0.5), 5));
   };
 
+  // Mouse handlers for desktop
   const handleMouseDown = (e: React.MouseEvent) => {
     if (e.button !== 0) return;
     setIsDragging(true);
@@ -94,6 +96,44 @@ const Blueprints = () => {
     setIsDragging(false);
   };
 
+  // Touch handlers for mobile
+  const getTouchDistance = (touches: React.TouchList) => {
+    if (touches.length < 2) return null;
+    const dx = touches[0].clientX - touches[1].clientX;
+    const dy = touches[0].clientY - touches[1].clientY;
+    return Math.sqrt(dx * dx + dy * dy);
+  };
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (e.touches.length === 1) {
+      setIsDragging(true);
+      setDragStart({ x: e.touches[0].clientX - pan.x, y: e.touches[0].clientY - pan.y });
+    } else if (e.touches.length === 2) {
+      setLastTouchDistance(getTouchDistance(e.touches));
+    }
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (e.touches.length === 1 && isDragging) {
+      setPan({
+        x: e.touches[0].clientX - dragStart.x,
+        y: e.touches[0].clientY - dragStart.y,
+      });
+    } else if (e.touches.length === 2) {
+      const distance = getTouchDistance(e.touches);
+      if (distance && lastTouchDistance) {
+        const scale = distance / lastTouchDistance;
+        setZoom((prev) => Math.min(Math.max(prev * scale, 0.5), 5));
+        setLastTouchDistance(distance);
+      }
+    }
+  };
+
+  const handleTouchEnd = () => {
+    setIsDragging(false);
+    setLastTouchDistance(null);
+  };
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (selectedIndex === null) return;
@@ -107,7 +147,7 @@ const Blueprints = () => {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [selectedIndex]);
+  }, [selectedIndex, navigateBlueprint]);
 
   useEffect(() => {
     if (selectedIndex !== null) {
@@ -116,25 +156,25 @@ const Blueprints = () => {
   }, [selectedIndex]);
 
   return (
-    <section id="blueprints" className="py-20 md:py-32 bg-card">
-      <div className="container mx-auto px-6">
+    <section id="blueprints" className="py-16 md:py-32 bg-card">
+      <div className="container mx-auto px-4 md:px-6">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
-          className="text-center mb-16"
+          className="text-center mb-10 md:mb-16"
         >
-          <h2 className="font-serif text-4xl md:text-6xl text-foreground mb-4">
+          <h2 className="font-serif text-3xl md:text-6xl text-foreground mb-3 md:mb-4">
             Blueprint Gallery
           </h2>
-          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+          <p className="text-muted-foreground text-base md:text-lg max-w-2xl mx-auto px-2">
             Explore our technical drawings and floor plans
           </p>
         </motion.div>
 
         {/* Seamless Blueprint Grid - No Text */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-2 md:gap-4">
           {displayedItems.map((blueprint, index) => (
             <motion.div
               key={index}
@@ -162,7 +202,7 @@ const Blueprints = () => {
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="text-center mt-12"
+            className="text-center mt-8 md:mt-12"
           >
             <div className="inline-flex items-center gap-2 text-muted-foreground text-sm">
               <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
@@ -178,7 +218,7 @@ const Blueprints = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-accent/98 backdrop-blur-md z-50 flex items-center justify-center p-4"
+              className="fixed inset-0 bg-accent/98 backdrop-blur-md z-50 flex items-center justify-center p-2 md:p-4"
               onClick={() => {
                 setSelectedIndex(null);
                 resetView();
@@ -190,47 +230,47 @@ const Blueprints = () => {
                   setSelectedIndex(null);
                   resetView();
                 }}
-                className="absolute top-6 right-6 text-accent-foreground hover:text-primary transition-colors z-10"
+                className="absolute top-4 right-4 md:top-6 md:right-6 text-accent-foreground hover:text-primary transition-colors z-10"
               >
-                <X size={32} />
+                <X size={28} className="md:w-8 md:h-8" />
               </button>
 
               {/* Zoom Controls */}
-              <div className="absolute top-6 right-20 flex gap-2 z-10">
+              <div className="absolute top-4 left-4 md:top-6 md:right-20 md:left-auto flex gap-1 md:gap-2 z-10">
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
                     handleZoomIn();
                   }}
-                  className="p-3 bg-background/20 hover:bg-background/40 backdrop-blur-sm rounded-full transition-all duration-300 text-accent-foreground"
+                  className="p-2 md:p-3 bg-background/20 hover:bg-background/40 backdrop-blur-sm rounded-full transition-all duration-300 text-accent-foreground"
                   title="Zoom In"
                 >
-                  <ZoomIn size={20} />
+                  <ZoomIn size={18} className="md:w-5 md:h-5" />
                 </button>
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
                     handleZoomOut();
                   }}
-                  className="p-3 bg-background/20 hover:bg-background/40 backdrop-blur-sm rounded-full transition-all duration-300 text-accent-foreground"
+                  className="p-2 md:p-3 bg-background/20 hover:bg-background/40 backdrop-blur-sm rounded-full transition-all duration-300 text-accent-foreground"
                   title="Zoom Out"
                 >
-                  <ZoomOut size={20} />
+                  <ZoomOut size={18} className="md:w-5 md:h-5" />
                 </button>
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
                     resetView();
                   }}
-                  className="p-3 bg-background/20 hover:bg-background/40 backdrop-blur-sm rounded-full transition-all duration-300 text-accent-foreground"
+                  className="p-2 md:p-3 bg-background/20 hover:bg-background/40 backdrop-blur-sm rounded-full transition-all duration-300 text-accent-foreground"
                   title="Reset View"
                 >
-                  <Maximize2 size={20} />
+                  <Maximize2 size={18} className="md:w-5 md:h-5" />
                 </button>
               </div>
 
               {/* Zoom Level Indicator */}
-              <div className="absolute top-6 left-1/2 -translate-x-1/2 text-accent-foreground/90 text-sm font-medium z-10 bg-background/20 backdrop-blur-sm px-4 py-2 rounded-full">
+              <div className="absolute top-4 left-1/2 -translate-x-1/2 text-accent-foreground/90 text-xs md:text-sm font-medium z-10 bg-background/20 backdrop-blur-sm px-3 py-1.5 md:px-4 md:py-2 rounded-full">
                 {Math.round(zoom * 100)}%
               </div>
 
@@ -240,22 +280,22 @@ const Blueprints = () => {
                   e.stopPropagation();
                   navigateBlueprint(-1);
                 }}
-                className="absolute left-6 top-1/2 -translate-y-1/2 z-10 p-4 bg-background/20 hover:bg-background/40 backdrop-blur-sm rounded-full transition-all duration-300 text-accent-foreground"
+                className="absolute left-2 md:left-6 top-1/2 -translate-y-1/2 z-10 p-2 md:p-4 bg-background/20 hover:bg-background/40 backdrop-blur-sm rounded-full transition-all duration-300 text-accent-foreground"
               >
-                <ChevronLeft size={32} />
+                <ChevronLeft size={24} className="md:w-8 md:h-8" />
               </button>
               <button
                 onClick={(e) => {
                   e.stopPropagation();
                   navigateBlueprint(1);
                 }}
-                className="absolute right-6 top-1/2 -translate-y-1/2 z-10 p-4 bg-background/20 hover:bg-background/40 backdrop-blur-sm rounded-full transition-all duration-300 text-accent-foreground"
+                className="absolute right-2 md:right-6 top-1/2 -translate-y-1/2 z-10 p-2 md:p-4 bg-background/20 hover:bg-background/40 backdrop-blur-sm rounded-full transition-all duration-300 text-accent-foreground"
               >
-                <ChevronRight size={32} />
+                <ChevronRight size={24} className="md:w-8 md:h-8" />
               </button>
 
               {/* Blueprint Counter */}
-              <div className="absolute top-20 left-6 text-accent-foreground/90 text-sm font-medium z-10">
+              <div className="absolute top-14 md:top-20 left-4 md:left-6 text-accent-foreground/90 text-xs md:text-sm font-medium z-10">
                 {selectedIndex + 1} / {blueprints.length}
               </div>
 
@@ -266,19 +306,22 @@ const Blueprints = () => {
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.9 }}
                 transition={{ type: "spring", stiffness: 200, damping: 25 }}
-                className="max-w-7xl w-full max-h-[85vh] relative overflow-hidden"
+                className="max-w-7xl w-full max-h-[75vh] md:max-h-[85vh] relative overflow-hidden mt-12 md:mt-0"
                 onClick={(e) => e.stopPropagation()}
                 onWheel={handleWheel}
               >
                 <div
                   ref={imageRef}
-                  className={`w-full h-full flex items-center justify-center ${
+                  className={`w-full h-full flex items-center justify-center touch-none ${
                     isDragging ? "cursor-grabbing" : "cursor-grab"
                   }`}
                   onMouseDown={handleMouseDown}
                   onMouseMove={handleMouseMove}
                   onMouseUp={handleMouseUp}
                   onMouseLeave={handleMouseUp}
+                  onTouchStart={handleTouchStart}
+                  onTouchMove={handleTouchMove}
+                  onTouchEnd={handleTouchEnd}
                 >
                   <img
                     src={blueprints[selectedIndex]}
@@ -294,7 +337,7 @@ const Blueprints = () => {
               </motion.div>
 
               {/* Thumbnail Navigation Strip */}
-              <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-2 p-4 bg-background/20 backdrop-blur-md rounded-full z-10 max-w-[90vw] overflow-x-auto">
+              <div className="absolute bottom-4 md:bottom-8 left-1/2 -translate-x-1/2 flex gap-1.5 md:gap-2 p-2 md:p-4 bg-background/20 backdrop-blur-md rounded-full z-10 max-w-[95vw] md:max-w-[90vw] overflow-x-auto">
                 {blueprints.map((blueprint, idx) => (
                   <motion.button
                     key={idx}
@@ -302,7 +345,7 @@ const Blueprints = () => {
                       e.stopPropagation();
                       setSelectedIndex(idx);
                     }}
-                    className={`relative w-16 h-16 rounded-md overflow-hidden flex-shrink-0 transition-all duration-300 ${
+                    className={`relative w-10 h-10 md:w-16 md:h-16 rounded-md overflow-hidden flex-shrink-0 transition-all duration-300 ${
                       idx === selectedIndex
                         ? "ring-2 ring-primary scale-110"
                         : "opacity-60 hover:opacity-100"
