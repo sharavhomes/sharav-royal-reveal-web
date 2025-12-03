@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, ChevronLeft, ChevronRight, ZoomIn, ZoomOut, Maximize2 } from "lucide-react";
 import blueprint1 from "@/assets/blueprint-1.jpg";
@@ -11,6 +11,11 @@ import blueprint7 from "@/assets/blueprint-7.jpg";
 import blueprint8 from "@/assets/blueprint-8.jpg";
 import blueprint9 from "@/assets/blueprint-9.jpg";
 import blueprint10 from "@/assets/blueprint-10.jpg";
+import blueprint11 from "@/assets/blueprint-11.jpg";
+import blueprint12 from "@/assets/blueprint-12.jpg";
+import blueprint13 from "@/assets/blueprint-13.jpg";
+import blueprint14 from "@/assets/blueprint-14.jpg";
+import blueprint15 from "@/assets/blueprint-15.jpg";
 
 const blueprints = [
   blueprint1,
@@ -23,10 +28,14 @@ const blueprints = [
   blueprint8,
   blueprint9,
   blueprint10,
+  blueprint11,
+  blueprint12,
+  blueprint13,
+  blueprint14,
+  blueprint15,
 ];
 
 const Blueprints = () => {
-  const [displayedItems, setDisplayedItems] = useState(blueprints.slice(0, 6));
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [zoom, setZoom] = useState(1);
   const [pan, setPan] = useState({ x: 0, y: 0 });
@@ -34,22 +43,6 @@ const Blueprints = () => {
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [lastTouchDistance, setLastTouchDistance] = useState<number | null>(null);
   const imageRef = useRef<HTMLDivElement>(null);
-
-  // Infinite scroll
-  useEffect(() => {
-    const handleScroll = () => {
-      const scrollPosition = window.innerHeight + window.scrollY;
-      const scrollThreshold = document.body.offsetHeight - 500;
-
-      if (scrollPosition >= scrollThreshold && displayedItems.length < blueprints.length) {
-        const nextItems = blueprints.slice(0, displayedItems.length + 2);
-        setDisplayedItems(nextItems);
-      }
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [displayedItems]);
 
   const navigateBlueprint = useCallback((direction: number) => {
     if (selectedIndex === null) return;
@@ -175,7 +168,7 @@ const Blueprints = () => {
 
         {/* Seamless Blueprint Grid - No Text */}
         <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-2 md:gap-4">
-          {displayedItems.map((blueprint, index) => (
+          {blueprints.map((blueprint, index) => (
             <motion.div
               key={index}
               initial={{ opacity: 0, scale: 0.95 }}
@@ -196,20 +189,6 @@ const Blueprints = () => {
             </motion.div>
           ))}
         </div>
-
-        {/* Load More Indicator */}
-        {displayedItems.length < blueprints.length && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="text-center mt-8 md:mt-12"
-          >
-            <div className="inline-flex items-center gap-2 text-muted-foreground text-sm">
-              <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-              <span>Scroll for more</span>
-            </div>
-          </motion.div>
-        )}
 
         {/* Fullscreen Interconnected View */}
         <AnimatePresence>
