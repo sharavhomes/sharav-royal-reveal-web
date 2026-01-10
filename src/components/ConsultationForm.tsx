@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Calendar, User, Mail, Phone, Home, Palette, Clock, IndianRupee, MessageSquare, CheckCircle2 } from "lucide-react";
+import { Calendar, User, Mail, Phone, Home, Palette, Clock, IndianRupee, MessageSquare, CheckCircle2, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -13,9 +13,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 const ConsultationForm = () => {
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { toast } = useToast();
+  
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -55,11 +60,157 @@ const ConsultationForm = () => {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const validateForm = () => {
+    // Basic validation
+    if (!formData.fullName.trim() || formData.fullName.length > 100) {
+      toast({
+        title: "Invalid Name",
+        description: "Please enter a valid name (max 100 characters).",
+        variant: "destructive",
+      });
+      return false;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email) || formData.email.length > 255) {
+      toast({
+        title: "Invalid Email",
+        description: "Please enter a valid email address.",
+        variant: "destructive",
+      });
+      return false;
+    }
+
+    if (!formData.phone.trim()) {
+      toast({
+        title: "Phone Required",
+        description: "Please enter your phone number.",
+        variant: "destructive",
+      });
+      return false;
+    }
+
+    if (!formData.propertyType) {
+      toast({
+        title: "Property Type Required",
+        description: "Please select your property type.",
+        variant: "destructive",
+      });
+      return false;
+    }
+
+    if (!formData.propertySize) {
+      toast({
+        title: "Property Size Required",
+        description: "Please select your property size.",
+        variant: "destructive",
+      });
+      return false;
+    }
+
+    if (formData.rooms.length === 0) {
+      toast({
+        title: "Rooms Required",
+        description: "Please select at least one room to design.",
+        variant: "destructive",
+      });
+      return false;
+    }
+
+    if (!formData.projectType) {
+      toast({
+        title: "Project Type Required",
+        description: "Please select your project type.",
+        variant: "destructive",
+      });
+      return false;
+    }
+
+    if (!formData.budget) {
+      toast({
+        title: "Budget Required",
+        description: "Please select your budget range.",
+        variant: "destructive",
+      });
+      return false;
+    }
+
+    if (!formData.timeline) {
+      toast({
+        title: "Timeline Required",
+        description: "Please select your expected timeline.",
+        variant: "destructive",
+      });
+      return false;
+    }
+
+    return true;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Dummy submission - just show success
-    console.log("Form submitted:", formData);
-    setIsSubmitted(true);
+    
+    if (!validateForm()) return;
+    
+    setIsSubmitting(true);
+
+    try {
+      const { error } = await supabase.from("consultations").insert({
+        full_name: formData.fullName.trim(),
+        email: formData.email.trim().toLowerCase(),
+        phone: formData.phone.trim(),
+        preferred_contact_time: formData.preferredContactTime || null,
+        property_type: formData.propertyType,
+        property_size: formData.propertySize,
+        property_address: formData.address.trim() || null,
+        rooms_to_design: formData.rooms.join(", "),
+        project_type: formData.projectType,
+        style_preference: formData.stylePreference || null,
+        budget_range: formData.budget,
+        timeline: formData.timeline,
+        referral_source: formData.referralSource || null,
+        message: formData.message.trim() || null,
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      setIsSubmitted(true);
+      toast({
+        title: "Success!",
+        description: "Your consultation request has been submitted.",
+      });
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      toast({
+        title: "Submission Failed",
+        description: "There was an error submitting your request. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const resetForm = () => {
+    setIsSubmitted(false);
+    setFormData({
+      fullName: "",
+      email: "",
+      phone: "",
+      propertyType: "",
+      propertySize: "",
+      rooms: [],
+      projectType: "",
+      budget: "",
+      timeline: "",
+      stylePreference: "",
+      referralSource: "",
+      address: "",
+      message: "",
+      preferredContactTime: "",
+    });
   };
 
   if (isSubmitted) {
@@ -81,25 +232,7 @@ const ConsultationForm = () => {
               consultation.
             </p>
             <Button
-              onClick={() => {
-                setIsSubmitted(false);
-                setFormData({
-                  fullName: "",
-                  email: "",
-                  phone: "",
-                  propertyType: "",
-                  propertySize: "",
-                  rooms: [],
-                  projectType: "",
-                  budget: "",
-                  timeline: "",
-                  stylePreference: "",
-                  referralSource: "",
-                  address: "",
-                  message: "",
-                  preferredContactTime: "",
-                });
-              }}
+              onClick={resetForm}
               variant="outline"
               className="border-primary text-primary hover:bg-primary hover:text-primary-foreground"
             >
@@ -157,6 +290,7 @@ const ConsultationForm = () => {
                       setFormData({ ...formData, fullName: e.target.value })
                     }
                     required
+                    maxLength={100}
                     className="pl-10"
                   />
                   <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -175,6 +309,7 @@ const ConsultationForm = () => {
                       setFormData({ ...formData, email: e.target.value })
                     }
                     required
+                    maxLength={255}
                     className="pl-10"
                   />
                   <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -193,6 +328,7 @@ const ConsultationForm = () => {
                       setFormData({ ...formData, phone: e.target.value })
                     }
                     required
+                    maxLength={20}
                     className="pl-10"
                   />
                   <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -293,6 +429,7 @@ const ConsultationForm = () => {
                   onChange={(e) =>
                     setFormData({ ...formData, address: e.target.value })
                   }
+                  maxLength={500}
                 />
               </div>
             </div>
@@ -449,9 +586,7 @@ const ConsultationForm = () => {
             </h3>
             <div className="grid grid-cols-1 gap-6">
               <div className="space-y-2">
-                <Label htmlFor="referralSource">
-                  How did you hear about us?
-                </Label>
+                <Label htmlFor="referralSource">How did you hear about us?</Label>
                 <Select
                   value={formData.referralSource}
                   onValueChange={(value) =>
@@ -465,7 +600,8 @@ const ConsultationForm = () => {
                     <SelectItem value="google">Google Search</SelectItem>
                     <SelectItem value="instagram">Instagram</SelectItem>
                     <SelectItem value="facebook">Facebook</SelectItem>
-                    <SelectItem value="friend">Friend / Family Referral</SelectItem>
+                    <SelectItem value="youtube">YouTube</SelectItem>
+                    <SelectItem value="referral">Friend / Family Referral</SelectItem>
                     <SelectItem value="previous-client">Previous Client</SelectItem>
                     <SelectItem value="advertisement">Advertisement</SelectItem>
                     <SelectItem value="other">Other</SelectItem>
@@ -475,35 +611,44 @@ const ConsultationForm = () => {
 
               <div className="space-y-2">
                 <Label htmlFor="message">
-                  Tell us about your vision & requirements
+                  Tell us more about your vision (Optional)
                 </Label>
                 <Textarea
                   id="message"
-                  placeholder="Share your ideas, inspirations, specific requirements, or any questions you have..."
+                  placeholder="Describe your dream space, specific requirements, inspirations, or any questions you have..."
                   value={formData.message}
                   onChange={(e) =>
                     setFormData({ ...formData, message: e.target.value })
                   }
-                  className="min-h-[120px] resize-none"
+                  className="min-h-[120px]"
+                  maxLength={2000}
                 />
               </div>
             </div>
           </div>
 
           {/* Submit Button */}
-          <div className="flex flex-col sm:flex-row gap-4 items-center justify-between pt-6 border-t border-border">
-            <p className="text-sm text-muted-foreground">
-              * Required fields. We respect your privacy and will never share
-              your information.
-            </p>
+          <div className="text-center">
             <Button
               type="submit"
-              size="lg"
-              className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-primary-foreground px-10"
+              disabled={isSubmitting}
+              className="px-12 py-6 text-lg font-serif bg-primary text-primary-foreground hover:bg-primary/90 transition-all duration-300 shadow-lg hover:shadow-xl"
             >
-              <Calendar className="w-5 h-5 mr-2" />
-              Book Consultation
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                  Submitting...
+                </>
+              ) : (
+                <>
+                  <Calendar className="mr-2 h-5 w-5" />
+                  Book My Consultation
+                </>
+              )}
             </Button>
+            <p className="mt-4 text-sm text-muted-foreground">
+              We respect your privacy. Your information will never be shared.
+            </p>
           </div>
         </motion.form>
       </div>
