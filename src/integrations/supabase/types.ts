@@ -14,7 +14,66 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      consultations: {
+        Row: {
+          budget_range: string | null
+          created_at: string
+          email: string
+          full_name: string
+          id: string
+          message: string | null
+          phone: string | null
+          preferred_contact_time: string | null
+          project_type: string | null
+          property_address: string | null
+          property_size: string | null
+          property_type: string | null
+          referral_source: string | null
+          rooms_to_design: string | null
+          status: string
+          style_preference: string | null
+          timeline: string | null
+        }
+        Insert: {
+          budget_range?: string | null
+          created_at?: string
+          email: string
+          full_name: string
+          id?: string
+          message?: string | null
+          phone?: string | null
+          preferred_contact_time?: string | null
+          project_type?: string | null
+          property_address?: string | null
+          property_size?: string | null
+          property_type?: string | null
+          referral_source?: string | null
+          rooms_to_design?: string | null
+          status?: string
+          style_preference?: string | null
+          timeline?: string | null
+        }
+        Update: {
+          budget_range?: string | null
+          created_at?: string
+          email?: string
+          full_name?: string
+          id?: string
+          message?: string | null
+          phone?: string | null
+          preferred_contact_time?: string | null
+          project_type?: string | null
+          property_address?: string | null
+          property_size?: string | null
+          property_type?: string | null
+          referral_source?: string | null
+          rooms_to_design?: string | null
+          status?: string
+          style_preference?: string | null
+          timeline?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
