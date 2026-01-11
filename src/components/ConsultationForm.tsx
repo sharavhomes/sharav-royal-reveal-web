@@ -436,20 +436,21 @@ const ConsultationForm = () => {
 
             <div className="mt-6 space-y-3">
               <Label>Rooms to Design *</Label>
-              <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 sm:gap-3">
                 {roomOptions.map((room) => (
                   <div
                     key={room}
-                    className="flex items-center space-x-2"
+                    className="flex items-center space-x-2 p-2 rounded-lg hover:bg-muted/50 transition-colors"
                   >
                     <Checkbox
                       id={room}
                       checked={formData.rooms.includes(room)}
                       onCheckedChange={() => handleRoomToggle(room)}
+                      className="h-5 w-5"
                     />
                     <Label
                       htmlFor={room}
-                      className="text-sm font-normal cursor-pointer"
+                      className="text-sm font-normal cursor-pointer leading-tight"
                     >
                       {room}
                     </Label>
