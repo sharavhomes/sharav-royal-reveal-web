@@ -135,34 +135,6 @@ const Hero = () => {
             </button>
           </motion.div>
 
-          {/* Stats */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1.2, duration: 0.8 }}
-            className="grid grid-cols-3 gap-3 md:gap-8 max-w-md md:max-w-3xl mx-auto pt-6 md:pt-12 px-2"
-          >
-            {[
-              { number: "150+", label: "Projects" },
-              { number: "12+", label: "Years" },
-              { number: "98%", label: "Satisfaction" },
-            ].map((stat, index) => (
-              <motion.div
-                key={stat.label}
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 1.4 + index * 0.1, duration: 0.5 }}
-                className="text-center"
-              >
-                <p className="font-serif text-xl sm:text-2xl md:text-4xl text-primary mb-0.5 md:mb-2">
-                  {stat.number}
-                </p>
-                <p className="text-[10px] sm:text-xs md:text-sm text-muted-foreground uppercase tracking-wide">
-                  {stat.label}
-                </p>
-              </motion.div>
-            ))}
-          </motion.div>
         </motion.div>
       </div>
 
