@@ -61,7 +61,7 @@ const Contact = () => {
             className="text-center"
           >
             <button className="px-12 py-4 bg-primary text-primary-foreground font-serif text-lg rounded-sm hover:bg-primary/90 transition-all duration-300 shadow-lg hover:shadow-xl">
-              Schedule Consultation
+              Book Consultation
             </button>
           </motion.div>
         </motion.div>
