@@ -166,21 +166,22 @@ const Hero = () => {
         </motion.div>
       </div>
 
-      {/* Scroll Indicator */}
+      {/* Scroll Indicator - Fixed positioning */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1.8, duration: 0.6 }}
-        className="absolute bottom-6 md:bottom-8 left-1/2 -translate-x-1/2 z-10"
+        className="fixed bottom-6 md:bottom-8 left-1/2 -translate-x-1/2 z-50 pointer-events-auto"
+        style={{ position: 'absolute' }}
       >
         <motion.button
           onClick={scrollToNext}
-          animate={{ y: [0, 10, 0] }}
+          animate={{ y: [0, 8, 0] }}
           transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-          className="flex flex-col items-center gap-1 md:gap-2 text-muted-foreground hover:text-primary transition-colors group touch-target"
+          className="flex flex-col items-center gap-1 md:gap-2 text-foreground/70 hover:text-primary transition-colors group touch-target bg-background/30 backdrop-blur-sm px-4 py-2 rounded-full"
         >
-          <span className="text-xs md:text-sm uppercase tracking-wider">Scroll</span>
-          <ChevronDown size={24} className="md:w-7 md:h-7 group-hover:scale-110 transition-transform" />
+          <span className="text-xs md:text-sm uppercase tracking-wider font-medium drop-shadow-md">Scroll</span>
+          <ChevronDown size={20} className="md:w-6 md:h-6 group-hover:scale-110 transition-transform" />
         </motion.button>
       </motion.div>
     </section>
