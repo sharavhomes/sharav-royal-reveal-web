@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Mail, Phone, MapPin } from "lucide-react";
+import { Mail, MapPin } from "lucide-react";
 
 const Contact = () => {
   return (
@@ -21,7 +21,7 @@ const Contact = () => {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 md:gap-8 mb-8 md:mb-12">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 md:gap-8 mb-8 md:mb-12 max-w-2xl mx-auto">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -34,7 +34,7 @@ const Contact = () => {
                   <Mail className="text-primary" size={24} />
                 </div>
               </div>
-              <p className="text-muted-foreground">info@sharav.design</p>
+              <p className="text-muted-foreground">sharavhomes@gmail.com</p>
             </motion.div>
 
             <motion.div
@@ -46,25 +46,10 @@ const Contact = () => {
             >
               <div className="inline-block mb-4">
                 <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
-                  <Phone className="text-primary" size={24} />
+                  <span className="text-2xl">🇮🇳</span>
                 </div>
               </div>
-              <p className="text-muted-foreground">+1 (555) 123-4567</p>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.3 }}
-              className="text-center"
-            >
-              <div className="inline-block mb-4">
-                <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
-                  <MapPin className="text-primary" size={24} />
-                </div>
-              </div>
-              <p className="text-muted-foreground">New York, NY</p>
+              <p className="text-muted-foreground">India</p>
             </motion.div>
           </div>
 
