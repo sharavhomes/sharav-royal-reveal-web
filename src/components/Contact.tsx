@@ -60,7 +60,10 @@ const Contact = () => {
             transition={{ duration: 0.8, delay: 0.4 }}
             className="text-center"
           >
-            <button className="px-12 py-4 bg-primary text-primary-foreground font-serif text-lg rounded-sm hover:bg-primary/90 transition-all duration-300 shadow-lg hover:shadow-xl">
+            <button 
+              onClick={() => document.getElementById("consultation")?.scrollIntoView({ behavior: "smooth" })}
+              className="px-12 py-4 bg-primary text-primary-foreground font-serif text-lg rounded-sm hover:bg-primary/90 transition-all duration-300 shadow-lg hover:shadow-xl"
+            >
               Book Consultation
             </button>
           </motion.div>
