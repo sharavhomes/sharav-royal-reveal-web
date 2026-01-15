@@ -81,10 +81,12 @@ const ConsultationForm = () => {
       return false;
     }
 
-    if (!formData.phone.trim()) {
+    // Phone number validation with international format support
+    const phoneRegex = /^[\+]?[(]?[0-9]{1,4}[)]?[-\s\.]?[(]?[0-9]{1,4}[)]?[-\s\.]?[0-9]{1,9}$/;
+    if (!formData.phone.trim() || !phoneRegex.test(formData.phone.trim())) {
       toast({
-        title: "Phone Required",
-        description: "Please enter your phone number.",
+        title: "Invalid Phone Number",
+        description: "Please enter a valid phone number (e.g., +91 XXXXX XXXXX).",
         variant: "destructive",
       });
       return false;
@@ -182,7 +184,10 @@ const ConsultationForm = () => {
         description: "Your consultation request has been submitted.",
       });
     } catch (error) {
-      console.error("Error submitting form:", error);
+      // Only log detailed errors in development to prevent information leakage
+      if (import.meta.env.DEV) {
+        console.error("Error submitting form:", error);
+      }
       toast({
         title: "Submission Failed",
         description: "There was an error submitting your request. Please try again.",
