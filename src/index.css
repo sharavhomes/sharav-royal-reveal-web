@@ -109,4 +109,31 @@ All colors MUST be HSL.
   .touch-target {
     @apply min-h-[44px] min-w-[44px] flex items-center justify-center;
   }
+
+  /* Touch manipulation for better mobile scrolling/zooming */
+  .touch-manipulation {
+    touch-action: manipulation;
+  }
+
+  /* Prevent text selection during interactions */
+  .no-select {
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  /* Smooth momentum scrolling for iOS */
+  .momentum-scroll {
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Snap scrolling for carousels */
+  .snap-x {
+    scroll-snap-type: x mandatory;
+  }
+  .snap-center {
+    scroll-snap-align: center;
+  }
+  .snap-start {
+    scroll-snap-align: start;
+  }
 }
