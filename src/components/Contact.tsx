@@ -1,15 +1,22 @@
-import { motion } from "framer-motion";
-import { Mail, MapPin } from "lucide-react";
+import { memo, useCallback } from "react";
+import { motion, useReducedMotion } from "framer-motion";
+import { Mail } from "lucide-react";
 
-const Contact = () => {
+const Contact = memo(() => {
+  const prefersReducedMotion = useReducedMotion();
+  
+  const scrollToConsultation = useCallback(() => {
+    document.getElementById("consultation")?.scrollIntoView({ behavior: "smooth" });
+  }, []);
+
   return (
     <section id="contact" className="py-16 md:py-32 bg-card">
       <div className="container mx-auto px-4 md:px-6">
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.8 }}
+          transition={{ duration: 0.5 }}
           className="max-w-4xl mx-auto"
         >
           <div className="text-center mb-8 md:mb-12">
@@ -23,10 +30,10 @@ const Contact = () => {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 md:gap-8 mb-8 md:mb-12 max-w-2xl mx-auto">
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
+              initial={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.1 }}
+              transition={{ duration: 0.4, delay: 0.1 }}
               className="text-center"
             >
               <div className="inline-block mb-4">
@@ -38,10 +45,10 @@ const Contact = () => {
             </motion.div>
 
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
+              initial={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.2 }}
+              transition={{ duration: 0.4, delay: 0.2 }}
               className="text-center"
             >
               <div className="inline-block mb-4">
@@ -54,15 +61,15 @@ const Contact = () => {
           </div>
 
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
+            initial={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.8, delay: 0.4 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
             className="text-center"
           >
             <button 
-              onClick={() => document.getElementById("consultation")?.scrollIntoView({ behavior: "smooth" })}
-              className="px-12 py-4 bg-primary text-primary-foreground font-serif text-lg rounded-sm hover:bg-primary/90 transition-all duration-300 shadow-lg hover:shadow-xl"
+              onClick={scrollToConsultation}
+              className="px-12 py-4 bg-primary text-primary-foreground font-serif text-lg rounded-sm hover:bg-primary/90 transition-all duration-200 shadow-lg hover:shadow-xl"
             >
               Book Consultation
             </button>
@@ -71,6 +78,8 @@ const Contact = () => {
       </div>
     </section>
   );
-};
+});
+
+Contact.displayName = "Contact";
 
 export default Contact;

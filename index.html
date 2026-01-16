@@ -11,9 +11,17 @@
     <title>Sharav - Luxury Interior Design</title>
     <meta name="description" content="Sharav - Creating royal and luxurious interior spaces that reflect your unique style" />
     <meta name="author" content="Sharav Interior Design" />
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Preconnect to external resources -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    
+    <!-- Preload critical font -->
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&family=Inter:wght@400;500&display=swap" as="style" />
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&family=Inter:wght@400;500&display=swap" rel="stylesheet" />
+
+    <!-- DNS prefetch for any external APIs -->
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
 
     <meta property="og:title" content="Sharav - Luxury Interior Design" />
     <meta property="og:description" content="Creating royal and luxurious interior spaces" />

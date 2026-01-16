@@ -1,4 +1,5 @@
-import { motion } from "framer-motion";
+import { memo, useCallback } from "react";
+import { motion, useReducedMotion } from "framer-motion";
 import { Box, Layers, Palette } from "lucide-react";
 
 const services = [
@@ -19,27 +20,25 @@ const services = [
   },
 ];
 
-const ThreeDSection = () => {
+const ThreeDSection = memo(() => {
+  const prefersReducedMotion = useReducedMotion();
+  
+  const scrollToConsultation = useCallback(() => {
+    document.getElementById("consultation")?.scrollIntoView({ behavior: "smooth" });
+  }, []);
+
   return (
     <section id="services" className="py-16 md:py-32 bg-background relative overflow-hidden">
-      {/* Decorative Elements - Hidden on mobile */}
-      <motion.div
-        animate={{ rotate: 360 }}
-        transition={{ duration: 50, repeat: Infinity, ease: "linear" }}
-        className="absolute -top-20 -right-20 w-48 md:w-96 h-48 md:h-96 border border-primary/10 rounded-full hidden sm:block"
-      />
-      <motion.div
-        animate={{ rotate: -360 }}
-        transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
-        className="absolute -bottom-20 -left-20 w-48 md:w-96 h-48 md:h-96 border border-primary/10 rounded-full hidden sm:block"
-      />
+      {/* Decorative Elements - CSS animations */}
+      <div className="absolute -top-20 -right-20 w-48 md:w-96 h-48 md:h-96 border border-primary/10 rounded-full hidden sm:block animate-spin-slow" />
+      <div className="absolute -bottom-20 -left-20 w-48 md:w-96 h-48 md:h-96 border border-primary/10 rounded-full hidden sm:block animate-spin-slow-reverse" />
 
       <div className="container mx-auto px-4 md:px-6 relative z-10">
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.8 }}
+          transition={{ duration: 0.5 }}
           className="text-center mb-10 md:mb-16"
         >
           <h2 className="font-serif text-3xl md:text-6xl text-foreground mb-3 md:mb-4">
@@ -54,22 +53,17 @@ const ThreeDSection = () => {
           {services.map((service, index) => (
             <motion.div
               key={service.title}
-              initial={{ opacity: 0, y: 30 }}
+              initial={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: index * 0.2 }}
-              whileHover={{ y: -10 }}
-              className="bg-card p-6 md:p-8 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300"
+              transition={{ duration: 0.4, delay: prefersReducedMotion ? 0 : index * 0.1 }}
+              className="bg-card p-6 md:p-8 rounded-lg shadow-lg hover:shadow-xl hover:-translate-y-2 transition-all duration-200"
             >
-              <motion.div
-                whileHover={{ rotate: 360 }}
-                transition={{ duration: 0.6 }}
-                className="inline-block mb-6"
-              >
+              <div className="inline-block mb-6">
                 <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center">
                   <service.icon className="text-primary" size={32} />
                 </div>
-              </motion.div>
+              </div>
               <h3 className="font-serif text-2xl text-foreground mb-4">
                 {service.title}
               </h3>
@@ -80,19 +74,22 @@ const ThreeDSection = () => {
           ))}
         </div>
 
-        {/* Additional Info */}
+        {/* CTA */}
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.8, delay: 0.6 }}
+          transition={{ duration: 0.5, delay: 0.3 }}
           className="mt-20 text-center"
         >
           <div className="inline-block bg-card px-12 py-8 rounded-lg shadow-lg">
             <p className="text-lg text-muted-foreground mb-4">
               Ready to visualize your dream space?
             </p>
-            <button className="px-10 py-3 bg-primary text-primary-foreground font-serif text-lg rounded-sm hover:bg-primary/90 transition-all duration-300 shadow-md hover:shadow-lg">
+            <button 
+              onClick={scrollToConsultation}
+              className="px-10 py-3 bg-primary text-primary-foreground font-serif text-lg rounded-sm hover:bg-primary/90 transition-all duration-200 shadow-md hover:shadow-lg"
+            >
               Get Started
             </button>
           </div>
@@ -100,6 +97,8 @@ const ThreeDSection = () => {
       </div>
     </section>
   );
-};
+});
+
+ThreeDSection.displayName = "ThreeDSection";
 
 export default ThreeDSection;
