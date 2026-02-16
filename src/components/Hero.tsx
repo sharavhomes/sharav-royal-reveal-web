@@ -1,32 +1,19 @@
 import { memo, useCallback } from "react";
-import { motion, useReducedMotion } from "framer-motion";
 import { ChevronDown, Sparkles } from "lucide-react";
 import heroImage from "@/assets/hero-interior.jpg";
 
 const Hero = memo(() => {
-  const prefersReducedMotion = useReducedMotion();
-  
   const scrollToNext = useCallback(() => {
-    const portfolioSection = document.getElementById("inspiration");
-    portfolioSection?.scrollIntoView({ behavior: "smooth" });
+    document.getElementById("inspiration")?.scrollIntoView({ behavior: "smooth" });
   }, []);
 
   const scrollToContact = useCallback(() => {
     document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" });
   }, []);
 
-  // Simplified animations for performance
-  const fadeIn = prefersReducedMotion 
-    ? { opacity: 1 } 
-    : { opacity: 1, y: 0 };
-  
-  const fadeInInitial = prefersReducedMotion 
-    ? { opacity: 0 } 
-    : { opacity: 0, y: 30 };
-
   return (
     <section id="hero" className="relative min-h-screen flex items-center justify-center overflow-hidden">
-      {/* Background Image with Overlay - Optimized loading */}
+      {/* Background Image with Overlay */}
       <div className="absolute inset-0 z-0">
         <img 
           src={heroImage} 
@@ -34,32 +21,21 @@ const Hero = memo(() => {
           className="w-full h-full object-cover opacity-60"
           loading="eager"
           decoding="async"
-          fetchPriority="high"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-background/40 via-background/50 to-background" />
         
-        {/* Simplified decorative circles - CSS animations instead of JS */}
+        {/* Decorative circles - pure CSS */}
         <div className="absolute top-20 right-20 w-32 md:w-64 h-32 md:h-64 border border-primary/20 rounded-full hidden sm:block animate-spin-slow" />
         <div className="absolute bottom-20 left-20 w-48 md:w-96 h-48 md:h-96 border border-primary/10 rounded-full hidden sm:block animate-spin-slow-reverse" />
       </div>
 
       {/* Content */}
       <div className="relative z-10 container mx-auto px-4 md:px-6 text-center pt-16 md:pt-20">
-        <motion.div
-          initial={fadeInInitial}
-          animate={fadeIn}
-          transition={{ duration: 0.6 }}
-          className="space-y-5 md:space-y-8"
-        >
+        <div className="space-y-5 md:space-y-8 fade-in-up">
           {/* Decorative Element */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.2, duration: 0.4 }}
-            className="flex justify-center mb-4 md:mb-6"
-          >
+          <div className="flex justify-center mb-4 md:mb-6">
             <Sparkles className="text-primary w-8 h-8 md:w-10 md:h-10" />
-          </motion.div>
+          </div>
 
           {/* Brand Name */}
           <div className="relative inline-block">
@@ -105,14 +81,14 @@ const Hero = memo(() => {
               Get in Touch
             </button>
           </div>
-        </motion.div>
+        </div>
       </div>
 
       {/* Scroll Indicator */}
       <div className="absolute bottom-6 md:bottom-8 left-1/2 -translate-x-1/2 z-50">
         <button
           onClick={scrollToNext}
-          className="flex flex-col items-center gap-1 md:gap-2 text-foreground/70 hover:text-primary transition-colors group touch-target bg-background/30 backdrop-blur-sm px-4 py-2 rounded-full animate-bounce-gentle"
+          className="flex flex-col items-center gap-1 md:gap-2 text-foreground/70 hover:text-primary transition-colors group touch-target bg-background/30 px-4 py-2 rounded-full animate-bounce-gentle"
         >
           <span className="text-xs md:text-sm uppercase tracking-wider font-medium drop-shadow-md">Scroll</span>
           <ChevronDown size={20} className="md:w-6 md:h-6 group-hover:scale-110 transition-transform" />

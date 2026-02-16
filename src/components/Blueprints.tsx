@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback, useEffect, useMemo, memo } from "react";
-import { motion, AnimatePresence, PanInfo, useReducedMotion } from "framer-motion";
+import { AnimatePresence, motion, PanInfo } from "framer-motion";
 import { X, ChevronLeft, ChevronRight, ZoomIn, ZoomOut, Grid3X3, Hand, RotateCcw } from "lucide-react";
 import blueprint1 from "@/assets/blueprint-1.jpg";
 import blueprint2 from "@/assets/blueprint-2.jpg";
@@ -38,24 +38,16 @@ const blueprints = [
 const SWIPE_THRESHOLD = 50;
 const SWIPE_VELOCITY_THRESHOLD = 500;
 
-// Memoized grid item
+// Lightweight grid item — no framer-motion, CSS animation only
 const BlueprintGridItem = memo(({ 
   blueprint, 
-  index, 
   onClick, 
-  prefersReducedMotion 
 }: { 
   blueprint: typeof blueprints[0]; 
-  index: number; 
   onClick: () => void;
-  prefersReducedMotion: boolean | null;
 }) => (
-  <motion.div
-    initial={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, scale: 0.95 }}
-    whileInView={{ opacity: 1, scale: 1 }}
-    viewport={{ once: true, margin: "-20px" }}
-    transition={{ duration: 0.3, delay: prefersReducedMotion ? 0 : Math.min(index * 0.02, 0.2) }}
-    className="relative aspect-[4/3] cursor-pointer rounded-lg overflow-hidden bg-background border border-border shadow-md hover:shadow-xl active:scale-[0.97] transition-all duration-200 group touch-manipulation"
+  <div
+    className="relative aspect-[4/3] cursor-pointer rounded-lg overflow-hidden bg-background border border-border shadow-md hover:shadow-xl active:scale-[0.97] transition-all duration-200 group touch-manipulation fade-in-up"
     onClick={onClick}
   >
     <img
@@ -72,11 +64,11 @@ const BlueprintGridItem = memo(({
       </p>
     </div>
     <div className="absolute top-2 right-2 opacity-70 md:hidden">
-      <div className="bg-background/80 backdrop-blur-sm rounded-full p-1.5">
+      <div className="bg-background/80 rounded-full p-1.5">
         <ZoomIn className="w-3 h-3 text-foreground" />
       </div>
     </div>
-  </motion.div>
+  </div>
 ));
 
 BlueprintGridItem.displayName = "BlueprintGridItem";
@@ -89,11 +81,9 @@ const Blueprints = memo(() => {
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [lastTouchDistance, setLastTouchDistance] = useState<number | null>(null);
   const [showThumbnails, setShowThumbnails] = useState(false);
-  const [showHint, setShowHint] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
   const imageRef = useRef<HTMLDivElement>(null);
   const thumbnailScrollRef = useRef<HTMLDivElement>(null);
-  const prefersReducedMotion = useReducedMotion();
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768);
@@ -111,8 +101,9 @@ const Blueprints = memo(() => {
     if (selectedIndex === null) return;
     const newIndex = (selectedIndex + direction + blueprints.length) % blueprints.length;
     setSelectedIndex(newIndex);
-    resetView();
-  }, [selectedIndex, resetView]);
+    setZoom(1);
+    setPan({ x: 0, y: 0 });
+  }, [selectedIndex]);
 
   const handleZoomIn = useCallback(() => setZoom(prev => Math.min(prev + 0.5, 5)), []);
   const handleZoomOut = useCallback(() => setZoom(prev => Math.max(prev - 0.5, 0.5)), []);
@@ -123,19 +114,13 @@ const Blueprints = memo(() => {
     setZoom(prev => Math.min(Math.max(prev + delta, 0.5), 5));
   }, []);
 
-  const handleDragEnd = useCallback((event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
+  const handleDragEnd = useCallback((_: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
     if (zoom > 1) return;
-    
     const swipeThreshold = isMobile ? SWIPE_THRESHOLD * 0.6 : SWIPE_THRESHOLD;
-    
     if (info.offset.x > swipeThreshold || info.velocity.x > SWIPE_VELOCITY_THRESHOLD) {
       navigateBlueprint(-1);
     } else if (info.offset.x < -swipeThreshold || info.velocity.x < -SWIPE_VELOCITY_THRESHOLD) {
       navigateBlueprint(1);
-    }
-    
-    if (Math.abs(info.offset.x) > 20) {
-      setShowHint(false);
     }
   }, [zoom, isMobile, navigateBlueprint]);
 
@@ -189,23 +174,19 @@ const Blueprints = memo(() => {
   useEffect(() => {
     if (selectedIndex !== null && thumbnailScrollRef.current) {
       const container = thumbnailScrollRef.current;
-      const thumbnailWidth = window.innerWidth < 768 ? 48 : 72;
+      const thumbnailWidth = isMobile ? 48 : 72;
       const scrollPosition = selectedIndex * thumbnailWidth - container.clientWidth / 2 + thumbnailWidth / 2;
       container.scrollTo({ left: scrollPosition, behavior: 'smooth' });
     }
-  }, [selectedIndex]);
+  }, [selectedIndex, isMobile]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (selectedIndex === null) return;
       if (e.key === "ArrowLeft") navigateBlueprint(-1);
       if (e.key === "ArrowRight") navigateBlueprint(1);
-      if (e.key === "Escape") {
-        setSelectedIndex(null);
-        resetView();
-      }
+      if (e.key === "Escape") { setSelectedIndex(null); resetView(); }
     };
-
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [selectedIndex, navigateBlueprint, resetView]);
@@ -220,26 +201,13 @@ const Blueprints = memo(() => {
     return () => { document.body.style.overflow = ''; };
   }, [selectedIndex, resetView]);
 
-  const openBlueprint = useCallback((index: number) => {
-    setSelectedIndex(index);
-    setShowHint(true);
-  }, []);
-
-  const closeGallery = useCallback(() => {
-    setSelectedIndex(null);
-    resetView();
-  }, [resetView]);
+  const openBlueprint = useCallback((index: number) => setSelectedIndex(index), []);
+  const closeGallery = useCallback(() => { setSelectedIndex(null); resetView(); }, [resetView]);
 
   return (
     <section id="blueprints" className="py-12 md:py-32 bg-card">
       <div className="container mx-auto px-3 md:px-6">
-        <motion.div
-          initial={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-50px" }}
-          transition={{ duration: 0.5 }}
-          className="text-center mb-6 md:mb-16"
-        >
+        <div className="text-center mb-6 md:mb-16 fade-in-up">
           <h2 className="font-serif text-2xl sm:text-3xl md:text-6xl text-foreground mb-2 md:mb-4">
             Blueprint Gallery
           </h2>
@@ -249,7 +217,7 @@ const Blueprints = memo(() => {
           <p className="text-muted-foreground/70 text-xs mt-2 md:hidden">
             Tap to view • Pinch to zoom • Swipe to navigate
           </p>
-        </motion.div>
+        </div>
 
         {/* Grid */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 sm:gap-3 md:gap-4">
@@ -257,51 +225,41 @@ const Blueprints = memo(() => {
             <BlueprintGridItem
               key={index}
               blueprint={blueprint}
-              index={index}
               onClick={() => openBlueprint(index)}
-              prefersReducedMotion={prefersReducedMotion}
             />
           ))}
         </div>
 
-        {/* Fullscreen View */}
+        {/* Fullscreen View — framer-motion only for swipe & exit animation */}
         <AnimatePresence>
           {selectedIndex !== null && (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              className="fixed inset-0 bg-accent/98 backdrop-blur-md z-50 flex flex-col safe-top safe-bottom"
+              transition={{ duration: 0.15 }}
+              className="fixed inset-0 bg-accent/98 z-50 flex flex-col safe-top safe-bottom"
             >
               {/* Top Controls */}
-              <div className="flex items-center justify-between px-2 py-2 md:px-6 md:py-4 bg-background/15 backdrop-blur-md">
+              <div className="flex items-center justify-between px-2 py-2 md:px-6 md:py-4 bg-background/15">
                 <div className="flex items-center gap-0.5 md:gap-2">
-                  <button
-                    onClick={handleZoomOut}
-                    disabled={zoom <= 0.5}
-                    className="touch-target bg-background/30 hover:bg-background/50 active:bg-background/60 backdrop-blur-sm rounded-full transition-all duration-150 text-accent-foreground disabled:opacity-40"
-                    aria-label="Zoom Out"
-                  >
+                  <button onClick={handleZoomOut} disabled={zoom <= 0.5}
+                    className="touch-target bg-background/30 hover:bg-background/50 active:bg-background/60 rounded-full transition-all duration-150 text-accent-foreground disabled:opacity-40"
+                    aria-label="Zoom Out">
                     <ZoomOut size={18} className="md:w-5 md:h-5" />
                   </button>
                   <span className="text-accent-foreground/90 text-xs md:text-sm font-medium min-w-[3rem] text-center">
                     {Math.round(zoom * 100)}%
                   </span>
-                  <button
-                    onClick={handleZoomIn}
-                    disabled={zoom >= 5}
-                    className="touch-target bg-background/30 hover:bg-background/50 active:bg-background/60 backdrop-blur-sm rounded-full transition-all duration-150 text-accent-foreground disabled:opacity-40"
-                    aria-label="Zoom In"
-                  >
+                  <button onClick={handleZoomIn} disabled={zoom >= 5}
+                    className="touch-target bg-background/30 hover:bg-background/50 active:bg-background/60 rounded-full transition-all duration-150 text-accent-foreground disabled:opacity-40"
+                    aria-label="Zoom In">
                     <ZoomIn size={18} className="md:w-5 md:h-5" />
                   </button>
                   {zoom > 1 && (
-                    <button
-                      onClick={resetView}
-                      className="touch-target bg-primary/80 hover:bg-primary active:bg-primary/90 backdrop-blur-sm rounded-full transition-all duration-150 text-primary-foreground ml-1"
-                      aria-label="Reset View"
-                    >
+                    <button onClick={resetView}
+                      className="touch-target bg-primary/80 hover:bg-primary active:bg-primary/90 rounded-full transition-all duration-150 text-primary-foreground ml-1"
+                      aria-label="Reset View">
                       <RotateCcw size={16} className="md:w-4 md:h-4" />
                     </button>
                   )}
@@ -312,20 +270,14 @@ const Blueprints = memo(() => {
                 </span>
 
                 <div className="flex items-center gap-0.5 md:gap-2">
-                  <button
-                    onClick={() => setShowThumbnails(!showThumbnails)}
-                    className={`touch-target backdrop-blur-sm rounded-full transition-all duration-150 text-accent-foreground md:hidden ${
-                      showThumbnails ? 'bg-primary/80' : 'bg-background/30 hover:bg-background/50'
-                    }`}
-                    aria-label="Toggle Thumbnails"
-                  >
+                  <button onClick={() => setShowThumbnails(!showThumbnails)}
+                    className={`touch-target rounded-full transition-all duration-150 text-accent-foreground md:hidden ${showThumbnails ? 'bg-primary/80' : 'bg-background/30 hover:bg-background/50'}`}
+                    aria-label="Toggle Thumbnails">
                     <Grid3X3 size={18} />
                   </button>
-                  <button
-                    onClick={closeGallery}
-                    className="touch-target bg-background/30 hover:bg-background/50 active:bg-destructive/80 backdrop-blur-sm rounded-full transition-all duration-150 text-accent-foreground"
-                    aria-label="Close gallery"
-                  >
+                  <button onClick={closeGallery}
+                    className="touch-target bg-background/30 hover:bg-background/50 active:bg-destructive/80 rounded-full transition-all duration-150 text-accent-foreground"
+                    aria-label="Close gallery">
                     <X size={22} className="md:w-6 md:h-6" />
                   </button>
                 </div>
@@ -333,27 +285,22 @@ const Blueprints = memo(() => {
 
               {/* Main Content */}
               <div className="flex-1 relative flex items-center justify-center overflow-hidden touch-manipulation">
-                <button
-                  onClick={() => navigateBlueprint(-1)}
-                  className="absolute left-2 md:left-6 top-1/2 -translate-y-1/2 z-10 touch-target bg-background/30 hover:bg-background/50 backdrop-blur-sm rounded-full transition-all duration-150 text-accent-foreground hidden sm:flex shadow-lg"
-                  aria-label="Previous"
-                >
+                <button onClick={() => navigateBlueprint(-1)}
+                  className="absolute left-2 md:left-6 top-1/2 -translate-y-1/2 z-10 touch-target bg-background/30 hover:bg-background/50 rounded-full transition-all duration-150 text-accent-foreground hidden sm:flex shadow-lg"
+                  aria-label="Previous">
                   <ChevronLeft size={24} className="md:w-8 md:h-8" />
                 </button>
-                <button
-                  onClick={() => navigateBlueprint(1)}
-                  className="absolute right-2 md:right-6 top-1/2 -translate-y-1/2 z-10 touch-target bg-background/30 hover:bg-background/50 backdrop-blur-sm rounded-full transition-all duration-150 text-accent-foreground hidden sm:flex shadow-lg"
-                  aria-label="Next"
-                >
+                <button onClick={() => navigateBlueprint(1)}
+                  className="absolute right-2 md:right-6 top-1/2 -translate-y-1/2 z-10 touch-target bg-background/30 hover:bg-background/50 rounded-full transition-all duration-150 text-accent-foreground hidden sm:flex shadow-lg"
+                  aria-label="Next">
                   <ChevronRight size={24} className="md:w-8 md:h-8" />
                 </button>
 
                 <motion.div
                   key={selectedIndex}
-                  initial={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, scale: 0.95 }}
-                  transition={{ duration: 0.2 }}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.15 }}
                   drag={zoom <= 1 ? "x" : false}
                   dragConstraints={{ left: 0, right: 0 }}
                   dragElastic={0.15}
@@ -361,11 +308,8 @@ const Blueprints = memo(() => {
                   className="w-full h-full max-w-7xl px-1 sm:px-4 md:px-16 flex items-center justify-center touch-manipulation"
                   onWheel={handleWheel}
                 >
-                  <div
-                    ref={imageRef}
-                    className={`w-full h-full flex items-center justify-center touch-manipulation ${
-                      zoom > 1 ? (isDragging ? "cursor-grabbing" : "cursor-grab") : "cursor-default"
-                    }`}
+                  <div ref={imageRef}
+                    className={`w-full h-full flex items-center justify-center touch-manipulation ${zoom > 1 ? (isDragging ? "cursor-grabbing" : "cursor-grab") : "cursor-default"}`}
                     onMouseDown={handleMouseDown}
                     onMouseMove={handleMouseMove}
                     onMouseUp={handleMouseUp}
@@ -386,75 +330,31 @@ const Blueprints = memo(() => {
                     />
                   </div>
                 </motion.div>
-
-                {/* Hints */}
-                <AnimatePresence>
-                  {showHint && isMobile && zoom <= 1 && (
-                    <motion.div
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      transition={{ delay: 0.3, duration: 0.2 }}
-                      className="absolute bottom-28 left-1/2 -translate-x-1/2 bg-background/80 backdrop-blur-md px-4 py-2 rounded-full shadow-lg"
-                    >
-                      <div className="flex items-center gap-3 text-foreground/80 text-xs">
-                        <div className="flex items-center gap-1">
-                          <ChevronLeft size={12} />
-                          <Hand size={14} />
-                          <ChevronRight size={12} />
-                        </div>
-                        <span className="font-medium">Swipe</span>
-                        <span className="text-muted-foreground">•</span>
-                        <span className="font-medium">Pinch to zoom</span>
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
               </div>
 
               {/* Thumbnails */}
-              <motion.div
-                initial={false}
-                animate={{ 
-                  height: showThumbnails || !isMobile ? "auto" : 0,
-                  opacity: showThumbnails || !isMobile ? 1 : 0
-                }}
-                transition={{ duration: 0.15 }}
-                className="overflow-hidden bg-background/15 backdrop-blur-md"
+              <div
+                className={`overflow-hidden bg-background/15 transition-all duration-150 ${showThumbnails || !isMobile ? 'max-h-24 md:max-h-28 opacity-100' : 'max-h-0 opacity-0'}`}
               >
-                <div 
-                  ref={thumbnailScrollRef}
-                  className="flex gap-1 md:gap-2 p-2 md:p-4 overflow-x-auto hide-scrollbar justify-start md:justify-center snap-x snap-mandatory"
-                >
+                <div ref={thumbnailScrollRef}
+                  className="flex gap-1 md:gap-2 p-2 md:p-4 overflow-x-auto hide-scrollbar justify-start md:justify-center snap-x snap-mandatory">
                   {blueprints.map((blueprint, idx) => (
-                    <button
-                      key={idx}
-                      onClick={() => setSelectedIndex(idx)}
+                    <button key={idx} onClick={() => setSelectedIndex(idx)}
                       className={`relative w-14 h-14 md:w-16 md:h-16 rounded-md overflow-hidden flex-shrink-0 transition-all duration-150 snap-center ${
-                        idx === selectedIndex
-                          ? "ring-2 ring-primary scale-105 shadow-lg"
-                          : "opacity-60 hover:opacity-100"
+                        idx === selectedIndex ? "ring-2 ring-primary scale-105 shadow-lg" : "opacity-60 hover:opacity-100"
                       }`}
-                      aria-label={`View ${blueprint.title}`}
-                    >
-                      <img
-                        src={blueprint.src}
-                        alt={blueprint.title}
-                        className="w-full h-full object-cover"
-                        loading="lazy"
-                        decoding="async"
-                      />
+                      aria-label={`View ${blueprint.title}`}>
+                      <img src={blueprint.src} alt={blueprint.title}
+                        className="w-full h-full object-cover" loading="lazy" decoding="async" />
                     </button>
                   ))}
                 </div>
-              </motion.div>
+              </div>
 
               {/* Mobile toggle */}
-              <div className="md:hidden text-center pb-1 safe-bottom bg-background/15 backdrop-blur-md">
-                <button
-                  onClick={() => setShowThumbnails(!showThumbnails)}
-                  className="text-accent-foreground/80 text-xs py-2 px-4 active:bg-background/20 rounded-full transition-colors"
-                >
+              <div className="md:hidden text-center pb-1 safe-bottom bg-background/15">
+                <button onClick={() => setShowThumbnails(!showThumbnails)}
+                  className="text-accent-foreground/80 text-xs py-2 px-4 active:bg-background/20 rounded-full transition-colors">
                   {showThumbnails ? "▼ Hide thumbnails" : "▲ Show thumbnails"}
                 </button>
               </div>

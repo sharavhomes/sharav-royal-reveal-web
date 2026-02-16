@@ -1,5 +1,5 @@
 import { useState, memo, useCallback } from "react";
-import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { X, ZoomIn } from "lucide-react";
 import work1 from "@/assets/work-1.jpg";
 import work2 from "@/assets/work-2.jpg";
@@ -28,63 +28,46 @@ const sizeClasses = {
   large: "aspect-[2/3]",
 } as const;
 
-// Memoized image card for better performance
-const ImageCard = memo(({ item, index, onClick, isMobile }: {
+const ImageCard = memo(({ item, onClick }: {
   item: typeof inspirationItems[0];
-  index: number;
   onClick: () => void;
-  isMobile?: boolean;
-}) => {
-  const prefersReducedMotion = useReducedMotion();
-  
-  return (
-    <motion.div
-      initial={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-50px" }}
-      transition={{ duration: 0.4, delay: prefersReducedMotion ? 0 : Math.min(index * 0.05, 0.3) }}
-      className={`${sizeClasses[item.size as keyof typeof sizeClasses]} relative group cursor-pointer rounded-lg overflow-hidden shadow-md`}
-      onClick={onClick}
-    >
-      <img
-        src={item.image}
-        alt={item.title}
-        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-        loading="lazy"
-        decoding="async"
-      />
-      <div className="absolute inset-0 bg-gradient-to-t from-accent/80 via-accent/20 to-transparent opacity-0 group-hover:opacity-100 group-active:opacity-100 transition-opacity duration-200">
-        <div className="absolute bottom-0 left-0 right-0 p-2 md:p-4 text-accent-foreground">
-          <p className="text-[10px] md:text-xs font-medium mb-0.5 opacity-90 uppercase tracking-wider">
-            {item.category}
-          </p>
-          <h3 className="font-serif text-xs md:text-xl">{item.title}</h3>
-        </div>
-        <div className="absolute top-2 right-2 md:top-4 md:right-4 bg-background/20 backdrop-blur-sm rounded-full p-1 md:p-2">
-          <ZoomIn className="text-accent-foreground w-4 h-4 md:w-5 md:h-5" />
-        </div>
+}) => (
+  <div
+    className={`${sizeClasses[item.size as keyof typeof sizeClasses]} relative group cursor-pointer rounded-lg overflow-hidden shadow-md fade-in-up`}
+    onClick={onClick}
+  >
+    <img
+      src={item.image}
+      alt={item.title}
+      className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+      loading="lazy"
+      decoding="async"
+    />
+    <div className="absolute inset-0 bg-gradient-to-t from-accent/80 via-accent/20 to-transparent opacity-0 group-hover:opacity-100 group-active:opacity-100 transition-opacity duration-200">
+      <div className="absolute bottom-0 left-0 right-0 p-2 md:p-4 text-accent-foreground">
+        <p className="text-[10px] md:text-xs font-medium mb-0.5 opacity-90 uppercase tracking-wider">
+          {item.category}
+        </p>
+        <h3 className="font-serif text-xs md:text-xl">{item.title}</h3>
       </div>
-    </motion.div>
-  );
-});
+      <div className="absolute top-2 right-2 md:top-4 md:right-4 bg-background/20 rounded-full p-1 md:p-2">
+        <ZoomIn className="text-accent-foreground w-4 h-4 md:w-5 md:h-5" />
+      </div>
+    </div>
+  </div>
+));
 
 ImageCard.displayName = "ImageCard";
 
 const Inspiration = memo(() => {
   const [selectedImage, setSelectedImage] = useState<number | null>(null);
-  const prefersReducedMotion = useReducedMotion();
 
   const columns = [1, 2, 3, 4].map(col => 
     inspirationItems.filter(item => item.column === col)
   );
 
-  const handleImageClick = useCallback((id: number) => {
-    setSelectedImage(id);
-  }, []);
-
-  const closeModal = useCallback(() => {
-    setSelectedImage(null);
-  }, []);
+  const handleImageClick = useCallback((id: number) => setSelectedImage(id), []);
+  const closeModal = useCallback(() => setSelectedImage(null), []);
 
   const scrollToBlueprints = useCallback(() => {
     document.getElementById("blueprints")?.scrollIntoView({ behavior: "smooth" });
@@ -97,20 +80,14 @@ const Inspiration = memo(() => {
   return (
     <section id="inspiration" className="py-12 md:py-32 bg-background relative overflow-hidden">
       <div className="container mx-auto px-3 md:px-6">
-        <motion.div
-          initial={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-          className="text-center mb-8 md:mb-16"
-        >
+        <div className="text-center mb-8 md:mb-16 fade-in-up">
           <h2 className="font-serif text-2xl sm:text-3xl md:text-6xl text-foreground mb-2 md:mb-4">
             Design Inspiration
           </h2>
           <p className="text-muted-foreground text-sm md:text-lg max-w-2xl mx-auto px-2">
             Explore a curated collection of stunning interior design ideas
           </p>
-        </motion.div>
+        </div>
 
         {/* Grid */}
         <div className="relative">
@@ -120,13 +97,11 @@ const Inspiration = memo(() => {
               <div key={colIndex} className="flex flex-col gap-2">
                 {inspirationItems
                   .filter((_, idx) => idx % 2 === colIndex)
-                  .map((item, index) => (
+                  .map((item) => (
                     <ImageCard
                       key={item.id}
                       item={item}
-                      index={index}
                       onClick={() => handleImageClick(item.id)}
-                      isMobile
                     />
                   ))}
               </div>
@@ -137,11 +112,10 @@ const Inspiration = memo(() => {
           <div className="hidden md:grid md:grid-cols-4 gap-4">
             {columns.map((columnItems, colIndex) => (
               <div key={colIndex} className="flex flex-col gap-4">
-                {columnItems.map((item, index) => (
+                {columnItems.map((item) => (
                   <ImageCard
                     key={item.id}
                     item={item}
-                    index={colIndex * 3 + index}
                     onClick={() => handleImageClick(item.id)}
                   />
                 ))}
@@ -166,15 +140,15 @@ const Inspiration = memo(() => {
         </div>
       </div>
 
-      {/* Modal */}
+      {/* Modal - kept lightweight with AnimatePresence for exit animation */}
       <AnimatePresence>
         {selectedItem && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="fixed inset-0 bg-accent/95 backdrop-blur-sm z-50 flex items-center justify-center p-2 md:p-4"
+            transition={{ duration: 0.15 }}
+            className="fixed inset-0 bg-accent/95 z-50 flex items-center justify-center p-2 md:p-4"
             onClick={closeModal}
           >
             <button
@@ -183,11 +157,7 @@ const Inspiration = memo(() => {
             >
               <X size={28} className="md:w-8 md:h-8" />
             </button>
-            <motion.div
-              initial={prefersReducedMotion ? { opacity: 0 } : { scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={prefersReducedMotion ? { opacity: 0 } : { scale: 0.9, opacity: 0 }}
-              transition={{ duration: 0.2 }}
+            <div
               className="max-w-6xl max-h-[85vh] md:max-h-[90vh] relative"
               onClick={(e) => e.stopPropagation()}
             >
@@ -204,7 +174,7 @@ const Inspiration = memo(() => {
                   {selectedItem.title}
                 </h3>
               </div>
-            </motion.div>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
